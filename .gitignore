@@ -7,3 +7,14 @@ typechain
 #Hardhat files
 cache
 artifacts
+
+package-lock.json
+yarn.lock
+
+# Log files
+yarn-error.log
+
+# sample input data
+scripts/local.data.json
+test/local.data.json
+scripts/rinkeby.data.json

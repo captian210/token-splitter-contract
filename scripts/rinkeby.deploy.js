@@ -5,6 +5,8 @@
 // Runtime Environment's members available in the global scope.
 const hrdht = require("hardhat");
 
+const data = require('./rinkeby.data.json');
+
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
@@ -14,12 +16,18 @@ async function main() {
   // await hrdht.run('compile');
 
   // We get the contract to deploy
-  const Greeter = await hrdht.ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  const EthSplitter = await hrdht.ethers.getContractFactory("EthSplitter");
+  console.log(data);
+  const ethSplitter = await EthSplitter.deploy(data);
+  await ethSplitter.deployed();
 
-  await greeter.deployed();
+  const EthSplitterFactory = await hrdht.ethers.getContractFactory("EthSplitterFactory");
+  const ethSplitterFactory = await EthSplitterFactory.deploy();
+  await ethSplitterFactory.deployed();
 
-  console.log("Greeter deployed to:", greeter.address);
+  console.log("EthSplitter deployed to:", ethSplitter.address, 
+  "\nEthSplitterFactory deployed to:", ethSplitterFactory.address);
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
