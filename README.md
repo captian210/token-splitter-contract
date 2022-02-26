@@ -1,15 +1,27 @@
-# Basic Sample Hardhat Project
+# Token Splitter & Factory Contracts
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+If you send Eth to this splitter contract, eth shares to registered addresses.\
+Also, you can create splitter contract using factory contract.
 
 Try running some of the following tasks:
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
+### Compile
+```
+yarn compile
+```
+### Test
+```
+yarn test
+```
+### Run node
+```
+yarn up
+```
+### Deploy to local node
+```
+yarn deploy:local
+```
+### Deploy to rinkeby network
+```
+yarn deploy:rinkeby
 ```
