@@ -1,17 +1,21 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
 import "./libs/SafeMath.sol";
+import "./interfaces/IERC20.sol";
 import "./Ownable.sol";
 
-contract EthSplitter is Ownable {
+contract TokenSplitter is Ownable {
     struct Payee {
-        address payable payeeAddress;
+        address payeeAddress;
         uint256 share;
     }
 
-    Payee[] public payees;
-    uint256 public totalShare;
+    IERC20 private token;
+
+    Payee[] private payees;
+    uint256 private totalShare;
 
     event ReceivedEth(address indexed fromAddress, uint256 amount);
     event SplittedEth(uint256 amount, Payee[] payees);
@@ -19,14 +23,30 @@ contract EthSplitter is Ownable {
     using SafeMath for uint256;
 
     constructor(
-        Payee[] memory _payees
+        Payee[] memory _payees,
+        address _token
     ) {
         _addPayees(_payees);
+        require(_token != address(0), "Zero address: token");
+        token = IERC20(_token);
+    }
+
+    function getToken() external view returns (address) {
+        return address(token);
+    }
+
+    function setToken(address _token) external {
+        require(_token != address(0), "Zero address: token");
+        token = IERC20(_token);
+    }
+
+    function getTotalShare() external view returns (uint256) {
+        return totalShare;
     }
 
     function addPayees(
         Payee[] memory _payees
-    ) external payable {
+    ) external onlyOwner {
         _addPayees(_payees);
     }
 
@@ -40,7 +60,7 @@ contract EthSplitter is Ownable {
 
     function _addPayees(
         Payee[] memory _payees
-    ) internal onlyOwner {
+    ) internal {
         for (uint256 i = 0; i < _payees.length; i++) {
             (uint256 index, bool isExist, bool hasShare) = _checkPayee(_payees[i]);
             if(!hasShare) continue;
@@ -66,24 +86,26 @@ contract EthSplitter is Ownable {
         return (0, false, true);
     }
 
-    receive() external payable {
-        emit ReceivedEth(msg.sender, msg.value);
-        require(msg.value > 0, "Fund value 0 is not allowed");
-        _split(msg.value);
+    function split() external {
+        _split();
     }
 
-    function split(
-        uint256 _amount
-    ) external {
-        _split(_amount);
+    function getTokenBalance() external view returns (uint256) {
+        uint256 balance = _getTokenBalance();
+        return balance;
     }
 
-    function _split(uint256 _amount) internal {
+    function _getTokenBalance() internal view returns (uint256) {
+        uint256 _balance = token.balanceOf(address(this));
+        return _balance;
+    }
 
+    function _split() internal {
+        uint256 _amount = _getTokenBalance();
         for (uint256 i = 0; i < payees.length; i++) {
-            address payable payee = payees[i].payeeAddress;
+            address payee = payees[i].payeeAddress;
             uint256 ethAmount = _amount.div(totalShare).mul(payees[i].share);
-            payee.transfer(ethAmount); // transfer percentage share
+            token.transfer(payee, ethAmount); // transfer percentage share
         }
         emit SplittedEth(_amount, payees);
     }

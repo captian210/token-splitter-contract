@@ -1,32 +1,47 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
+
 const hrdht = require("hardhat");
 
 const data = require('./rinkeby.data.json');
 
-async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hrdht.run('compile');
+const Web3 = require('web3');
 
-  // We get the contract to deploy
+const rpcURL = 'https://rinkeby.infura.io/v3/f2620f7c6bca409f9468a3f371905c12';
+const web3 = new Web3(new Web3.providers.HttpProvider(rpcURL));
+
+async function main() {
+
   const EthSplitter = await hrdht.ethers.getContractFactory("EthSplitter");
   console.log(data);
   const ethSplitter = await EthSplitter.deploy(data);
   await ethSplitter.deployed();
+  console.log('-------------deployed-eth-splitter------------------------');
 
   const EthSplitterFactory = await hrdht.ethers.getContractFactory("EthSplitterFactory");
   const ethSplitterFactory = await EthSplitterFactory.deploy();
   await ethSplitterFactory.deployed();
+  console.log('-------------deployed-eth-splitter-factory----------------');
 
-  console.log("EthSplitter deployed to:", ethSplitter.address, 
-  "\nEthSplitterFactory deployed to:", ethSplitterFactory.address);
+  const Token = await hrdht.ethers.getContractFactory("CustomERC20");
+  const token = await Token.deploy();
+  await token.deployed();
+  console.log('-------------deployed-token-------------------------------');
+
+  const ethAmount = web3.utils.toWei('100000', "ether");
+  console.log(ethAmount);
+  await token.mint(ethAmount);
+  console.log('-------------done-mint-token------------------------------');
+  
+  const TokenSplitter = await hrdht.ethers.getContractFactory("TokenSplitter");
+  const tokenSplitter = await TokenSplitter.deploy(data, token.address);
+  await tokenSplitter.deployed();
+  console.log('-------------deployed-token-splitter----------------------');
+
+  console.log(
+    "EthSplitter deployed to:", ethSplitter.address, 
+    "\nEthSplitterFactory deployed to:", ethSplitterFactory.address,
+    "\nToken deployed to:", token.address,
+    "\nTokenSplitter deployed to:", tokenSplitter.address
+  );
 
 }
 
