@@ -30,6 +30,29 @@ contract EthSplitter is Ownable {
         _addPayees(_payees);
     }
 
+    function removePayees(
+        address[] memory _payeeAddresses
+    ) external payable onlyOwner {
+        for (uint256 i = 0; i < payees.length; i++) {
+            for (uint256 j = 0; j < _payeeAddresses.length; j++) {
+                if(payees[i].payeeAddress == _payeeAddresses[j]) {
+                    payees[i].share = 0;
+                }
+            }
+        }
+    }
+
+    function getShareWithAddress(
+        address _payeeAddress
+    ) external view returns (uint256) {
+        for (uint256 i = 0; i < payees.length; i++) {
+            if(payees[i].payeeAddress == _payeeAddress) {
+                uint256 payeeShare = payees[i].share;
+                return payeeShare;
+            }
+        }
+    }
+
     function getPayeesCount() public view returns (uint256) {
         return payees.length;
     }
