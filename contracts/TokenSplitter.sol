@@ -19,6 +19,8 @@ contract TokenSplitter is Ownable {
 
     event ReceivedEth(address indexed fromAddress, uint256 amount);
     event SplittedEth(uint256 amount, Payee[] payees);
+    event AddedPayees(Payee[] payees);
+    event RemovedPayees(address[] payees);
 
     using SafeMath for uint256;
 
@@ -50,6 +52,31 @@ contract TokenSplitter is Ownable {
         _addPayees(_payees);
     }
 
+    function removePayees(
+        address[] memory _payeeAddresses
+    ) external onlyOwner {
+        for (uint256 i = 0; i < payees.length; i++) {
+            for (uint256 j = 0; j < _payeeAddresses.length; j++) {
+                if(payees[i].payeeAddress == _payeeAddresses[j]) {
+                    payees[i].share = 0;
+                }
+            }
+        }
+        emit RemovedPayees(_payeeAddresses);
+    }
+
+    function getShareWithAddress(
+        address _payeeAddress
+    ) external view returns (uint256) {
+        for (uint256 i = 0; i < payees.length; i++) {
+            if(payees[i].payeeAddress == _payeeAddress) {
+                uint256 payeeShare = payees[i].share;
+                return payeeShare;
+            }
+        }
+        return 0;
+    }
+
     function getPayeesCount() public view returns (uint256) {
         uint256 payeesCount = payees.length;
         return payeesCount;
@@ -72,6 +99,7 @@ contract TokenSplitter is Ownable {
                 payees.push(_payees[i]);
             }
         }
+        emit AddedPayees(_payees);
     }
 
     function _checkPayee(

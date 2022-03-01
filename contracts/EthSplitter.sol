@@ -54,6 +54,7 @@ contract EthSplitter is Ownable {
                 return payeeShare;
             }
         }
+        return 0;
     }
 
     function getPayeesCount() public view returns (uint256) {
