@@ -15,6 +15,8 @@ contract EthSplitter is Ownable {
 
     event ReceivedEth(address indexed fromAddress, uint256 amount);
     event SplittedEth(uint256 amount, Payee[] payees);
+    event AddedPayees(Payee[] payees);
+    event RemovedPayees(address[] payees);
 
     using SafeMath for uint256;
 
@@ -40,6 +42,7 @@ contract EthSplitter is Ownable {
                 }
             }
         }
+        emit RemovedPayees(_payeeAddresses);
     }
 
     function getShareWithAddress(
@@ -54,7 +57,8 @@ contract EthSplitter is Ownable {
     }
 
     function getPayeesCount() public view returns (uint256) {
-        return payees.length;
+        uint256 payeesCount = payees.length;
+        return payeesCount;
     }
 
     function getPayees() public view returns (Payee[] memory) {
@@ -74,6 +78,7 @@ contract EthSplitter is Ownable {
                 payees.push(_payees[i]);
             }
         }
+        emit AddedPayees(_payees);
     }
 
     function _checkPayee(
@@ -102,7 +107,6 @@ contract EthSplitter is Ownable {
     }
 
     function _split(uint256 _amount) internal {
-
         for (uint256 i = 0; i < payees.length; i++) {
             address payable payee = payees[i].payeeAddress;
             uint256 ethAmount = _amount.div(totalShare).mul(payees[i].share);
