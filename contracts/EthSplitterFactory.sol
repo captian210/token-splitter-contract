@@ -2,8 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "./EthSplitter.sol";
+import "./Ownable.sol";
 
-contract EthSplitterFactory {
+contract EthSplitterFactory is Ownable {
 
   address[] public contracts;
 
@@ -12,7 +13,7 @@ contract EthSplitterFactory {
   function registerSplitter(
     address _owner,
     EthSplitter.Payee[] memory _payees
-  ) public {
+  ) public onlyOwner {
     EthSplitter splitter = new EthSplitter(_payees);
     contracts.push(address(splitter));
     splitter.transferOwnership(_owner);
@@ -20,6 +21,7 @@ contract EthSplitterFactory {
   }
 
   function getSplitterCount() external view returns (uint256) {
-    return contracts.length;
+    uint256 splitterCount = contracts.length;
+    return splitterCount;
   }
 }

@@ -35,7 +35,7 @@ contract TokenSplitter is Ownable {
         return address(token);
     }
 
-    function setToken(address _token) external {
+    function setToken(address _token) external onlyOwner {
         require(_token != address(0), "Zero address: token");
         token = IERC20(_token);
     }
@@ -46,12 +46,13 @@ contract TokenSplitter is Ownable {
 
     function addPayees(
         Payee[] memory _payees
-    ) external onlyOwner {
+    ) external {
         _addPayees(_payees);
     }
 
     function getPayeesCount() public view returns (uint256) {
-        return payees.length;
+        uint256 payeesCount = payees.length;
+        return payeesCount;
     }
 
     function getPayees() public view returns (Payee[] memory) {
@@ -60,7 +61,7 @@ contract TokenSplitter is Ownable {
 
     function _addPayees(
         Payee[] memory _payees
-    ) internal {
+    ) internal onlyOwner {
         for (uint256 i = 0; i < _payees.length; i++) {
             (uint256 index, bool isExist, bool hasShare) = _checkPayee(_payees[i]);
             if(!hasShare) continue;
@@ -100,7 +101,7 @@ contract TokenSplitter is Ownable {
         return _balance;
     }
 
-    function _split() internal {
+    function _split() internal onlyOwner {
         uint256 _amount = _getTokenBalance();
         for (uint256 i = 0; i < payees.length; i++) {
             address payee = payees[i].payeeAddress;
