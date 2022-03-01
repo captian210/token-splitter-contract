@@ -111,7 +111,7 @@ contract EthSplitter is Ownable {
         for (uint256 i = 0; i < payees.length; i++) {
             address payable payee = payees[i].payeeAddress;
             uint256 ethAmount = _amount.div(totalShare).mul(payees[i].share);
-            payee.transfer(ethAmount); // transfer percentage share
+            payee.call{ value: ethAmount };
         }
         emit SplittedEth(_amount, payees);
     }
